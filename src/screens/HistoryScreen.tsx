@@ -20,6 +20,7 @@ import { t } from '../utils/i18n';
 import { supabase } from '../config/supabase';
 import { BirdAnalysis, RootStackParamList } from '../types';
 import { ImageViewer } from '../components/ImageViewer';
+import { BirdDetailModal } from '../components/BirdDetailModal';
 
 type HistoryScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'History'>;
 
@@ -34,6 +35,8 @@ export const HistoryScreen: React.FC = () => {
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [viewerVisible, setViewerVisible] = useState(false);
   const [imageLoadStates, setImageLoadStates] = useState<{ [key: string]: boolean }>({});
+  const [selectedAnalysis, setSelectedAnalysis] = useState<BirdAnalysis | null>(null);
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
 
   const loadAnalyses = async () => {
     if (!user) return;
@@ -114,12 +117,28 @@ export const HistoryScreen: React.FC = () => {
     setImageLoadStates(prev => ({ ...prev, [itemId]: false }));
   };
 
+  const handleCardPress = (analysis: BirdAnalysis) => {
+    setSelectedAnalysis(analysis);
+    setDetailModalVisible(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setDetailModalVisible(false);
+    setTimeout(() => setSelectedAnalysis(null), 300);
+  };
+
+  const handleDetailImagePress = (imageUrl: string) => {
+    setDetailModalVisible(false);
+    setTimeout(() => {
+      setSelectedImageUrl(imageUrl);
+      setViewerVisible(true);
+    }, 300);
+  };
+
   const renderAnalysisItem = ({ item }: { item: BirdAnalysis }) => (
-    <TouchableOpacity
-      style={[styles.analysisCard, { backgroundColor: colors.surface }]}
-      activeOpacity={0.7}
-    >
+    <View style={[styles.analysisCard, { backgroundColor: colors.surface }]}>
       <View style={styles.cardContent}>
+        {/* Image - Tap to view full-screen */}
         {item.image_url ? (
           <TouchableOpacity
             onPress={() => handleImagePress(item.image_url!)}
@@ -151,7 +170,12 @@ export const HistoryScreen: React.FC = () => {
           </View>
         )}
         
-        <View style={styles.infoContainer}>
+        {/* Text Info - Tap to view details */}
+        <TouchableOpacity
+          style={styles.infoContainer}
+          onPress={() => handleCardPress(item)}
+          activeOpacity={0.7}
+        >
           <Text style={[styles.speciesName, { color: colors.text }]} numberOfLines={1}>
             {item.bird_species}
           </Text>
@@ -167,7 +191,7 @@ export const HistoryScreen: React.FC = () => {
           {item.description && (
             <Text
               style={[styles.description, { color: colors.textSecondary }]}
-              numberOfLines={2}
+              numberOfLines={3}
             >
               {item.description}
             </Text>
@@ -176,9 +200,9 @@ export const HistoryScreen: React.FC = () => {
           <Text style={[styles.date, { color: colors.textSecondary }]}>
             {formatDate(item.created_at)}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   const renderEmptyState = () => (
@@ -260,6 +284,14 @@ export const HistoryScreen: React.FC = () => {
           }
         />
       )}
+
+      {/* Detail Modal */}
+      <BirdDetailModal
+        visible={detailModalVisible}
+        analysis={selectedAnalysis}
+        onClose={handleCloseDetailModal}
+        onImagePress={handleDetailImagePress}
+      />
 
       {/* Image Viewer Modal */}
       <ImageViewer
