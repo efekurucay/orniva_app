@@ -19,6 +19,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { t } from '../utils/i18n';
 import { supabase } from '../config/supabase';
 import { BirdAnalysis, RootStackParamList } from '../types';
+import { ImageViewer } from '../components/ImageViewer';
 
 type HistoryScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'History'>;
 
@@ -30,6 +31,9 @@ export const HistoryScreen: React.FC = () => {
   const [analyses, setAnalyses] = useState<BirdAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [viewerVisible, setViewerVisible] = useState(false);
+  const [imageLoadStates, setImageLoadStates] = useState<{ [key: string]: boolean }>({});
 
   const loadAnalyses = async () => {
     if (!user) return;
@@ -92,18 +96,59 @@ export const HistoryScreen: React.FC = () => {
     }
   };
 
+  const handleImagePress = (imageUrl: string) => {
+    setSelectedImageUrl(imageUrl);
+    setViewerVisible(true);
+  };
+
+  const handleCloseViewer = () => {
+    setViewerVisible(false);
+    setTimeout(() => setSelectedImageUrl(null), 300);
+  };
+
+  const handleImageLoadStart = (itemId: string) => {
+    setImageLoadStates(prev => ({ ...prev, [itemId]: true }));
+  };
+
+  const handleImageLoadEnd = (itemId: string) => {
+    setImageLoadStates(prev => ({ ...prev, [itemId]: false }));
+  };
+
   const renderAnalysisItem = ({ item }: { item: BirdAnalysis }) => (
     <TouchableOpacity
       style={[styles.analysisCard, { backgroundColor: colors.surface }]}
       activeOpacity={0.7}
     >
       <View style={styles.cardContent}>
-        {item.image_url && (
-          <Image
-            source={{ uri: item.image_url }}
-            style={styles.birdImage}
-            resizeMode="cover"
-          />
+        {item.image_url ? (
+          <TouchableOpacity
+            onPress={() => handleImagePress(item.image_url!)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.imageWrapper}>
+              <Image
+                source={{ uri: item.image_url }}
+                style={styles.birdImage}
+                resizeMode="cover"
+                onLoadStart={() => handleImageLoadStart(item.id)}
+                onLoadEnd={() => handleImageLoadEnd(item.id)}
+                onError={() => handleImageLoadEnd(item.id)}
+              />
+              {imageLoadStates[item.id] && (
+                <View style={styles.imageLoadingOverlay}>
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                </View>
+              )}
+              {/* Zoom indicator */}
+              <View style={styles.zoomIndicator}>
+                <Text style={styles.zoomIcon}>🔍</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <View style={[styles.birdImage, styles.placeholderImage, { backgroundColor: colors.border }]}>
+            <Text style={styles.placeholderIcon}>🦅</Text>
+          </View>
         )}
         
         <View style={styles.infoContainer}>
@@ -215,10 +260,16 @@ export const HistoryScreen: React.FC = () => {
           }
         />
       )}
+
+      {/* Image Viewer Modal */}
+      <ImageViewer
+        visible={viewerVisible}
+        imageUrl={selectedImageUrl}
+        onClose={handleCloseViewer}
+      />
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -295,11 +346,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 12,
   },
+  imageWrapper: {
+    position: 'relative',
+  },
   birdImage: {
     width: 100,
     height: 100,
     borderRadius: 12,
     marginRight: 12,
+  },
+  imageLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  zoomIndicator: {
+    position: 'absolute',
+    bottom: 4,
+    right: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  zoomIcon: {
+    fontSize: 12,
+  },
+  placeholderImage: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderIcon: {
+    fontSize: 40,
+    opacity: 0.3,
   },
   infoContainer: {
     flex: 1,

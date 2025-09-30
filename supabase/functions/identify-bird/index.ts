@@ -83,6 +83,7 @@ serve(async (req) => {
     // Process image data
     let base64Image: string;
     let mimeType: string = 'image/jpeg';
+    let imageBuffer: Uint8Array;
     
     try {
       if (imageUri.startsWith('data:image')) {
@@ -100,6 +101,14 @@ serve(async (req) => {
         }
         
         base64Image = parts[1];
+        
+        // Convert base64 to Uint8Array for storage upload
+        const binaryString = atob(base64Image);
+        imageBuffer = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          imageBuffer[i] = binaryString.charCodeAt(i);
+        }
+        
         console.log(`Processing base64 image, MIME type: ${mimeType}, size: ${base64Image.length} chars`);
       } else if (imageUri.startsWith('http')) {
         // Remote URL - fetch and convert
@@ -112,13 +121,19 @@ serve(async (req) => {
         const blob = await response.blob();
         mimeType = blob.type || 'image/jpeg';
         const arrayBuffer = await blob.arrayBuffer();
-        base64Image = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+        imageBuffer = new Uint8Array(arrayBuffer);
+        base64Image = btoa(String.fromCharCode(...imageBuffer));
       } else if (imageUri.startsWith('file://')) {
         // ❌ REMOVED: Local file access not supported in production
         throw new Error('Local file paths are not supported. Please send images as base64 data URIs.');
       } else {
         // Assume it's already base64 string
         base64Image = imageUri;
+        const binaryString = atob(base64Image);
+        imageBuffer = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          imageBuffer[i] = binaryString.charCodeAt(i);
+        }
         console.log('Processing raw base64 string, size:', base64Image.length);
       }
       
@@ -184,6 +199,37 @@ DESCRIPTION: Unable to identify a bird in this image. Please upload a clear phot
     // Parse the response
     const parsedResult = parseGeminiResponse(text);
 
+    // ✅ Upload image to Supabase Storage
+    let imageUrl: string | null = null;
+    try {
+      const fileExtension = mimeType.split('/')[1] || 'jpg';
+      const timestamp = Date.now();
+      const fileName = `${user_id}/${timestamp}.${fileExtension}`;
+
+      console.log(`Uploading image to storage: ${fileName}`);
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('bird-images')
+        .upload(fileName, imageBuffer, {
+          contentType: mimeType,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error('Failed to upload image:', uploadError);
+      } else {
+        // Get public URL for the uploaded image
+        const { data: { publicUrl } } = supabase.storage
+          .from('bird-images')
+          .getPublicUrl(fileName);
+        
+        imageUrl = publicUrl;
+        console.log(`Image uploaded successfully: ${imageUrl}`);
+      }
+    } catch (storageError) {
+      console.error('Storage error:', storageError);
+      // Non-critical - continue without image URL
+    }
+
     // ✅ Deduct credit ONLY after successful analysis
     const { data: deductResult, error: deductError } = await supabase.rpc('deduct_user_credit', {
       user_id_param: user_id
@@ -200,14 +246,14 @@ DESCRIPTION: Unable to identify a bird in this image. Please upload a clear phot
       // Still proceed with returning the analysis result
     }
 
-    // Save analysis to history (optional - doesn't affect response)
+    // Save analysis to history with image URL
     try {
       await supabase.from('bird_analyses').insert({
         user_id: user_id,
         bird_species: parsedResult.species,
         confidence: parsedResult.confidence,
         description: parsedResult.description,
-        image_url: null, // Not storing image for privacy
+        image_url: imageUrl,
       });
     } catch (historyError) {
       console.error('Failed to save analysis history:', historyError);
@@ -219,6 +265,7 @@ DESCRIPTION: Unable to identify a bird in this image. Please upload a clear phot
       JSON.stringify({
         success: true,
         result: parsedResult,
+        image_url: imageUrl,
         timestamp: new Date().toISOString(),
         model_used: 'gemini-2.5-pro' // Using more powerful model for better accuracy
       }),
