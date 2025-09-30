@@ -138,9 +138,11 @@ export function validateImageSize(
  * @returns Optimized image URI and metadata
  * 
  * Optimization strategy:
- * - Resize to max 1024x1024 (maintains aspect ratio)
+ * - Skip optimization for images < 100KB (already small)
+ * - Resize large images to max 1024x1024 (maintains aspect ratio)
  * - Compress to 75% quality JPEG
- * - Expected size reduction: 80-90%
+ * - Only use optimized version if it's smaller than original
+ * - Expected size reduction: 80-90% for large images
  * - Typical output: 200-400KB per image
  */
 export async function optimizeImage(imageUri: string): Promise<{
@@ -151,11 +153,25 @@ export async function optimizeImage(imageUri: string): Promise<{
   optimizedSize: number;
 }> {
   try {
-    // Get original file size
+    // Get original file info
     const originalFile = new File(imageUri);
     const originalSize = originalFile.size;
 
-    console.log(`Starting optimization for image: ${originalSize} bytes`);
+    console.log(`Starting optimization for image: ${originalSize} bytes (${(originalSize / 1024).toFixed(2)} KB)`);
+
+    // Skip optimization for images that are already small (< 100KB)
+    // These are likely already optimized or don't benefit from optimization
+    const MIN_SIZE_FOR_OPTIMIZATION = 100 * 1024; // 100KB
+    if (originalSize < MIN_SIZE_FOR_OPTIMIZATION) {
+      console.log(`Image is already small (< 100KB), skipping optimization`);
+      return {
+        uri: imageUri,
+        width: 0, // We don't know dimensions without processing
+        height: 0,
+        originalSize,
+        optimizedSize: originalSize,
+      };
+    }
 
     // Optimize: resize to max 1024px and compress to 75% quality
     const manipulatedImage = await manipulateAsync(
@@ -176,6 +192,18 @@ export async function optimizeImage(imageUri: string): Promise<{
     // Get optimized file size
     const optimizedFile = new File(manipulatedImage.uri);
     const optimizedSize = optimizedFile.size;
+
+    // Only use optimized version if it's actually smaller
+    if (optimizedSize >= originalSize) {
+      console.log(`Optimization didn't reduce size (${originalSize} → ${optimizedSize}), using original`);
+      return {
+        uri: imageUri,
+        width: manipulatedImage.width,
+        height: manipulatedImage.height,
+        originalSize,
+        optimizedSize: originalSize,
+      };
+    }
 
     const reductionPercent = Math.round((1 - optimizedSize / originalSize) * 100);
     console.log(`Image optimization complete: ${originalSize} → ${optimizedSize} bytes (${reductionPercent}% reduction)`);
