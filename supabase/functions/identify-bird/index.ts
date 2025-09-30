@@ -14,6 +14,7 @@ const corsHeaders = {
 interface BirdIdentificationRequest {
   imageUri: string;
   user_id: string;
+  language?: string;
 }
 
 interface BirdIdentificationResult {
@@ -41,7 +42,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Parse request body
-    const { imageUri, user_id }: BirdIdentificationRequest = await req.json();
+    const { imageUri, user_id, language = 'en' }: BirdIdentificationRequest = await req.json();
     
     if (!imageUri || !user_id) {
       return new Response(
@@ -153,23 +154,43 @@ serve(async (req) => {
       model: "gemini-2.5-pro" // More accurate and powerful model for image analysis
     });
 
+    // Language names for the prompt
+    const languageNames: { [key: string]: string } = {
+      en: 'English',
+      tr: 'Turkish',
+      es: 'Spanish',
+      fr: 'French',
+      de: 'German',
+      it: 'Italian',
+      pt: 'Portuguese',
+      ru: 'Russian',
+      zh: 'Chinese',
+      ja: 'Japanese',
+      ko: 'Korean',
+      ar: 'Arabic',
+    };
+
+    const languageName = languageNames[language] || 'English';
+
     // Prepare the prompt for bird identification
     const prompt = `You are an expert ornithologist. Analyze this bird image and provide:
 1. The exact bird species name (common name and scientific name)
 2. Confidence level as a percentage (0-100)
 3. A brief description of the bird (2-3 sentences including distinctive features, habitat, and behavior)
 
+IMPORTANT: Respond in ${languageName} language. The common name, description, and any text should be in ${languageName}. Only the scientific name should remain in Latin.
+
 Format your response EXACTLY as follows:
-SPECIES: [Bird Species Name]
-SCIENTIFIC: [Scientific Name]
+SPECIES: [Bird Species Name in ${languageName}]
+SCIENTIFIC: [Scientific Name in Latin]
 CONFIDENCE: [number between 0-100]
-DESCRIPTION: [Brief description]
+DESCRIPTION: [Brief description in ${languageName}]
 
 If you cannot identify the bird or if this is not a bird image, respond with:
-SPECIES: Unknown
+SPECIES: Unknown (or equivalent in ${languageName})
 SCIENTIFIC: N/A
 CONFIDENCE: 0
-DESCRIPTION: Unable to identify a bird in this image. Please upload a clear photo of a bird.`;
+DESCRIPTION: [Unable to identify message in ${languageName}]`;
 
     // Prepare image part for Gemini
     const imagePart = {

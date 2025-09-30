@@ -69,7 +69,7 @@ export const AnalysisScreen: React.FC = () => {
     try {
       // ✅ Credit deduction now handled in Edge Function (only after successful analysis)
       // Perform bird recognition via Edge Function (secure server-side)
-      const result = await edgeFunctionService.identifyBird(imageUri, user.id);
+      const result = await edgeFunctionService.identifyBird(imageUri, user.id, user.language || 'en');
 
       // Refresh user profile to update credits after successful analysis
       await refreshProfile();

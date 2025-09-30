@@ -14,7 +14,7 @@ export const edgeFunctionService = {
   /**
    * Identify bird using Supabase Edge Function (secure server-side Gemini API call)
    */
-  async identifyBird(imageUri: string, userId: string): Promise<BirdRecognitionResult> {
+  async identifyBird(imageUri: string, userId: string, language: string = 'en'): Promise<BirdRecognitionResult> {
     try {
       console.log('Calling Edge Function for bird identification...');
 
@@ -25,6 +25,7 @@ export const edgeFunctionService = {
           body: {
             imageUri,
             user_id: userId,
+            language,
           },
         }
       );
