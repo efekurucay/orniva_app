@@ -48,6 +48,10 @@ export const translations = {
     noImageSelected: 'No image selected.',
     geminiNotConfigured: 'Gemini API is not configured. Please add your API key.',
     
+    // Rate Limiting
+    pleaseWaitTitle: 'Please Wait',
+    rateLimitMessage: 'Please wait {seconds} second{plural} before analyzing another bird.',
+    
     // Success
     success: 'Success',
     signInSuccess: 'Signed in successfully!',
@@ -102,6 +106,10 @@ export const translations = {
     noImageSelected: 'Resim seçilmedi.',
     geminiNotConfigured: 'Gemini API yapılandırılmamış. Lütfen API anahtarınızı ekleyin.',
     
+    // Rate Limiting
+    pleaseWaitTitle: 'Lütfen Bekleyin',
+    rateLimitMessage: 'Başka bir kuşu analiz etmeden önce lütfen {seconds} saniye bekleyin.',
+    
     // Success
     success: 'Başarılı',
     signInSuccess: 'Başarıyla giriş yapıldı!',
@@ -113,4 +121,25 @@ export const translations = {
 
 export const t = (key: keyof typeof translations.en, language: Language = 'en'): string => {
   return translations[language][key] || translations.en[key] || key;
+};
+
+/**
+ * Translation with variable substitution
+ * @param key Translation key
+ * @param language Language
+ * @param variables Object with variable replacements (e.g., {seconds: 5, plural: 's'})
+ */
+export const tv = (
+  key: keyof typeof translations.en,
+  language: Language = 'en',
+  variables: Record<string, string | number> = {}
+): string => {
+  let text = translations[language][key] || translations.en[key] || key;
+  
+  // Replace variables in format {varName}
+  Object.entries(variables).forEach(([varName, value]) => {
+    text = text.replace(new RegExp(`\{${varName}\}`, 'g'), String(value));
+  });
+  
+  return text;
 };

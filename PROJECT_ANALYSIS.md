@@ -2847,30 +2847,47 @@ Given the app's focus on accurate bird identification, the upgrade to gemini-2.5
 
 ### 💡 Improvements
 
-#### **5. No Rate Limiting on Client**
-**Severity:** LOW  
-**Impact:** Users could spam API, hit rate limits
+#### **5. No Rate Limiting on Client** ✅ **RESOLVED (2025-09-30)**
+**Severity:** ~~LOW~~ → **FIXED**  
+**Impact:** ~~Users could spam API~~ → **Rate limiting implemented**
 
-**Issue:**
-HomeScreen allows unlimited rapid photo uploads with no throttling.
+**Original Issue:**
+HomeScreen allowed unlimited rapid photo uploads with no throttling, enabling API spam.
 
-**Recommendation:** Add cooldown:
+**Resolution:**
+- ✅ Implemented 5-second cooldown between uploads
+- ✅ Dynamic countdown message shows remaining seconds
+- ✅ Created `tv()` helper for variable substitution in translations
+- ✅ Fully internationalized (English & Turkish)
+- ✅ Configurable cooldown period via constant
+
+**Implementation:**
 ```typescript
-const [lastUploadTime, setLastUploadTime] = useState(0);
+const RATE_LIMIT_COOLDOWN_MS = 5000; // 5 seconds
+const [lastUploadTime, setLastUploadTime] = useState<number>(0);
 
-const handleUploadPress = () => {
-  const now = Date.now();
-  if (now - lastUploadTime < 5000) { // 5 second cooldown
-    Toast.show({
-      type: 'info',
-      text2: 'Please wait a moment before analyzing another bird.',
-    });
-    return;
-  }
-  setLastUploadTime(now);
-  // ... proceed
-};
+// In handleUploadPress:
+if (timeSinceLastUpload < RATE_LIMIT_COOLDOWN_MS && lastUploadTime > 0) {
+  const remainingSeconds = Math.ceil((RATE_LIMIT_COOLDOWN_MS - timeSinceLastUpload) / 1000);
+  Toast.show({
+    type: 'info',
+    text1: t('pleaseWaitTitle', user?.language),
+    text2: tv('rateLimitMessage', user?.language, {
+      seconds: remainingSeconds,
+      plural: remainingSeconds > 1 ? 's' : '',
+    }),
+  });
+  return;
+}
 ```
+
+**Benefits:**
+- Prevents API rate limit errors from Gemini
+- Protects against accidental multiple uploads
+- Better resource management
+- User-friendly experience with clear feedback
+
+**Status:** Client-side rate limiting active ✅
 
 ---
 

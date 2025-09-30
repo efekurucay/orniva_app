@@ -17,17 +17,22 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '../components/Button';
-import { t } from '../utils/i18n';
+import { t, tv } from '../utils/i18n';
 import { uriToBase64DataUri, validateImageSize } from '../utils/imageUtils';
 import { RootStackParamList } from '../types';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+
+// Rate limiting configuration
+const RATE_LIMIT_COOLDOWN_MS = 5000; // 5 seconds between uploads
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { user } = useAuth();
   const { colors } = useTheme();
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [lastUploadTime, setLastUploadTime] = useState<number>(0);
+  const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
 
   const requestPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -136,6 +141,7 @@ export const HomeScreen: React.FC = () => {
   };
 
   const handleUploadPress = () => {
+    // Check if user is authenticated and has credits
     if (!user || user.credits <= 0) {
       Toast.show({
         type: 'error',
@@ -145,6 +151,26 @@ export const HomeScreen: React.FC = () => {
       return;
     }
 
+    // Rate limiting: Check if cooldown period has passed
+    const now = Date.now();
+    const timeSinceLastUpload = now - lastUploadTime;
+    
+    if (timeSinceLastUpload < RATE_LIMIT_COOLDOWN_MS && lastUploadTime > 0) {
+      const remainingSeconds = Math.ceil((RATE_LIMIT_COOLDOWN_MS - timeSinceLastUpload) / 1000);
+      Toast.show({
+        type: 'info',
+        text1: t('pleaseWaitTitle', user?.language),
+        text2: tv('rateLimitMessage', user?.language, {
+          seconds: remainingSeconds,
+          plural: remainingSeconds > 1 ? 's' : '',
+        }),
+        visibilityTime: 2000,
+      });
+      return;
+    }
+
+    // Update last upload time and show picker
+    setLastUploadTime(now);
     setShowImagePicker(true);
   };
 
