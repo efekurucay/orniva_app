@@ -295,7 +295,7 @@ export const HomeScreen: React.FC = () => {
               elevation: 5,
             }]}
           >
-            <Text style={{ fontSize: 80 }}>📸</Text>
+            <Text style={{ fontSize: 60 }}>📸</Text>
           </LinearGradient>
 
           <TouchableOpacity
@@ -453,31 +453,31 @@ const styles = StyleSheet.create({
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 32,
     paddingHorizontal: 20,
   },
   heroGradientWrapper: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
     borderRadius: 12,
     marginBottom: 8,
   },
   heroTitle: {
-    fontSize: 48,
+    fontSize: 32,
     fontWeight: '700',
     textAlign: 'center',
     color: '#FFFFFF',
   },
   heroSubtitle: {
-    fontSize: 56,
+    fontSize: 28,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   heroDescription: {
-    fontSize: 16,
+    fontSize: 14,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 20,
     opacity: 0.8,
   },
   quote: {
@@ -490,35 +490,35 @@ const styles = StyleSheet.create({
   uploadContainer: {
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 40,
+    marginTop: 16,
+    marginBottom: 32,
   },
   uploadTitle: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: '700',
-    marginBottom: 24,
+    marginBottom: 20,
     textAlign: 'center',
   },
   uploadIcon: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   uploadButtonWrapper: {
     width: '100%',
     marginBottom: 16,
   },
   uploadButton: {
-    paddingVertical: 18,
-    borderRadius: 16,
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
   },
   uploadButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
