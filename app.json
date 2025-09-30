@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "orniva_app",
-    "slug": "orniva_app",
+    "name": "Orniva - Find Birds",
+    "slug": "orniva-find-birds",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -18,8 +18,14 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#4A90E2"
       },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "package": "com.orniva.findbirds",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },

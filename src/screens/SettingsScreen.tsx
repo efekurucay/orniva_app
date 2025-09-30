@@ -1,0 +1,335 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+  Alert,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { t } from '../utils/i18n';
+import { Language } from '../types';
+
+export const SettingsScreen: React.FC = () => {
+  const navigation = useNavigation();
+  const { user, signOut, updateProfile } = useAuth();
+  const { colors, isDark, toggleTheme } = useTheme();
+  const [loading, setLoading] = useState(false);
+
+  const handleLanguageChange = async (newLanguage: Language) => {
+    if (!user || user.language === newLanguage) return;
+
+    setLoading(true);
+    try {
+      await updateProfile({ language: newLanguage });
+      Toast.show({
+        type: 'success',
+        text1: t('success', newLanguage),
+        text2: t('profileUpdated', newLanguage),
+      });
+    } catch (error: any) {
+      Toast.show({
+        type: 'error',
+        text1: t('error', user.language),
+        text2: error.message || t('genericError', user.language),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      t('logout', user?.language),
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: t('logout', user?.language),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+              Toast.show({
+                type: 'success',
+                text1: t('success', user?.language),
+                text2: t('signOutSuccess', user?.language),
+              });
+            } catch (error: any) {
+              Toast.show({
+                type: 'error',
+                text1: t('error', user?.language),
+                text2: error.message || t('genericError', user?.language),
+              });
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={{ fontSize: 24 }}>←</Text>
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          {t('settings', user?.language)}
+        </Text>
+        <View style={{ width: 40 }} />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Profile Section */}
+        <View style={[styles.section, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+            {t('profile', user?.language)}
+          </Text>
+
+          <View style={styles.profileInfo}>
+            <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+              <Text style={styles.avatarText}>
+                {user?.username ? user.username[0].toUpperCase() : user?.email[0].toUpperCase()}
+              </Text>
+            </View>
+            <View style={styles.profileDetails}>
+              <Text style={[styles.profileName, { color: colors.text }]}>
+                {user?.username || 'User'}
+              </Text>
+              <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>
+                {user?.email}
+              </Text>
+            </View>
+          </View>
+
+          <View style={[styles.creditsDisplay, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.creditsLabel, { color: colors.textSecondary }]}>
+              {t('credits', user?.language)}
+            </Text>
+            <Text style={[styles.creditsValue, { color: colors.primary }]}>
+              {user?.credits || 0}
+            </Text>
+          </View>
+        </View>
+
+        {/* Appearance Section */}
+        <View style={[styles.section, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Appearance</Text>
+
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={toggleTheme}
+            activeOpacity={0.7}
+          >
+            <View style={styles.settingLeft}>
+              <Text style={{ fontSize: 24, marginRight: 12 }}>🌙</Text>
+              <Text style={[styles.settingText, { color: colors.text }]}>
+                {t('darkMode', user?.language)}
+              </Text>
+            </View>
+            <Switch
+              value={isDark}
+              onValueChange={toggleTheme}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={isDark ? colors.buttonText : colors.surface}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Language Section */}
+        <View style={[styles.section, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+            {t('language', user?.language)}
+          </Text>
+
+          <TouchableOpacity
+            style={[
+              styles.languageOption,
+              user?.language === 'en' && { backgroundColor: colors.surface },
+            ]}
+            onPress={() => handleLanguageChange('en')}
+            disabled={loading}
+          >
+            <Text style={{ fontSize: 24, marginRight: 12 }}>🇬🇧</Text>
+            <Text style={[styles.settingText, { color: colors.text }]}>English</Text>
+            {user?.language === 'en' && (
+              <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.languageOption,
+              user?.language === 'tr' && { backgroundColor: colors.surface },
+            ]}
+            onPress={() => handleLanguageChange('tr')}
+            disabled={loading}
+          >
+            <Text style={{ fontSize: 24, marginRight: 12 }}>🇹🇷</Text>
+            <Text style={[styles.settingText, { color: colors.text }]}>Türkçe</Text>
+            {user?.language === 'tr' && (
+              <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Account Section */}
+        <View style={[styles.section, { backgroundColor: colors.cardBackground }]}>
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={handleLogout}
+            activeOpacity={0.7}
+          >
+            <Text style={{ fontSize: 24, marginRight: 12 }}>🚪</Text>
+            <Text style={[styles.logoutText, { color: colors.error }]}>
+              {t('logout', user?.language)}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* App Version */}
+        <Text style={[styles.version, { color: colors.textSecondary }]}>
+          Orniva v1.0.0
+        </Text>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+  },
+  section: {
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 16,
+  },
+  profileInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  avatarText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  profileDetails: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  profileEmail: {
+    fontSize: 14,
+  },
+  creditsDisplay: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+  },
+  creditsLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  creditsValue: {
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  settingItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  settingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  settingText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  languageOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  checkmark: {
+    marginLeft: 'auto',
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  version: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 16,
+  },
+});

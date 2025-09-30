@@ -1,20 +1,74 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Toast from 'react-native-toast-message';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import { RootStackParamList } from './src/types';
+
+// Screens
+import { AuthScreen } from './src/screens/AuthScreen';
+import { HomeScreen } from './src/screens/HomeScreen';
+import { AnalysisScreen } from './src/screens/AnalysisScreen';
+import { ResultsScreen } from './src/screens/ResultsScreen';
+import { SettingsScreen } from './src/screens/SettingsScreen';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const AppNavigator = () => {
+  const { user, loading } = useAuth();
+  const { isDark } = useTheme();
+
+  if (loading) {
+    return null; // You could add a splash screen here
+  }
+
+  return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+          }}
+        >
+          {!user ? (
+            <Stack.Screen name="Auth" component={AuthScreen} />
+          ) : (
+            <>
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen
+                name="Analysis"
+                component={AnalysisScreen}
+                options={{ animation: 'fade' }}
+              />
+              <Stack.Screen
+                name="Results"
+                component={ResultsScreen}
+                options={{ animation: 'slide_from_bottom' }}
+              />
+              <Stack.Screen
+                name="Settings"
+                component={SettingsScreen}
+                options={{ animation: 'slide_from_right' }}
+              />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+      <Toast />
+    </>
+  );
+};
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppNavigator />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
