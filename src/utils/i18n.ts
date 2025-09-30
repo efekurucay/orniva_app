@@ -52,6 +52,11 @@ export const translations = {
     pleaseWaitTitle: 'Please Wait',
     rateLimitMessage: 'Please wait {seconds} second{plural} before analyzing another bird.',
     
+    // Retry Logic
+    retrying: 'Retrying...',
+    retryAttempt: 'Retrying in {seconds} second{plural}... (Attempt {current}/{total})',
+    retryFailed: 'Failed after {attempts} attempts. Please try again later.',
+    
     // Success
     success: 'Success',
     signInSuccess: 'Signed in successfully!',
@@ -109,6 +114,11 @@ export const translations = {
     // Rate Limiting
     pleaseWaitTitle: 'Lütfen Bekleyin',
     rateLimitMessage: 'Başka bir kuşu analiz etmeden önce lütfen {seconds} saniye bekleyin.',
+    
+    // Retry Logic
+    retrying: 'Tekrar deneniyor...',
+    retryAttempt: '{seconds} saniye içinde tekrar denenecek... (Deneme {current}/{total})',
+    retryFailed: '{attempts} denemeden sonra başarısız. Lütfen daha sonra tekrar deneyin.',
     
     // Success
     success: 'Başarılı',

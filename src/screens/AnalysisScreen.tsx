@@ -14,11 +14,15 @@ import Toast from 'react-native-toast-message';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { edgeFunctionService } from '../services/edgeFunctionService';
-import { t } from '../utils/i18n';
+import { t, tv } from '../utils/i18n';
 import { RootStackParamList } from '../types';
 
 type AnalysisScreenRouteProp = RouteProp<RootStackParamList, 'Analysis'>;
 type AnalysisScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Analysis'>;
+
+// Retry configuration
+const MAX_RETRY_ATTEMPTS = 2; // Will try up to 3 times total (initial + 2 retries)
+const RETRY_DELAYS = [2000, 4000]; // Exponential backoff: 2s, 4s
 
 export const AnalysisScreen: React.FC = () => {
   const route = useRoute<AnalysisScreenRouteProp>();
@@ -28,6 +32,7 @@ export const AnalysisScreen: React.FC = () => {
   const { imageUri } = route.params;
 
   const [pulseAnim] = useState(new Animated.Value(1));
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     // Start pulse animation
@@ -50,7 +55,7 @@ export const AnalysisScreen: React.FC = () => {
     analyzeBird();
   }, []);
 
-  const analyzeBird = async () => {
+  const analyzeBird = async (attemptNumber: number = 0) => {
     if (!user) {
       Toast.show({
         type: 'error',
@@ -75,16 +80,54 @@ export const AnalysisScreen: React.FC = () => {
         result,
       });
     } catch (error: any) {
-      console.error('Analysis error:', error);
+      console.error(`Analysis error (attempt ${attemptNumber + 1}):`, error);
 
+      // Check if error is retryable and we haven't exceeded max attempts
+      const isRetryable = error.retryable || 
+        error.message?.includes('timeout') ||
+        error.message?.includes('network') ||
+        error.message?.includes('fetch') ||
+        error.message?.includes('rate limit');
+      
+      const canRetry = isRetryable && attemptNumber < MAX_RETRY_ATTEMPTS;
+
+      if (canRetry) {
+        // Show retry notification
+        const delayMs = RETRY_DELAYS[attemptNumber];
+        const delaySeconds = Math.ceil(delayMs / 1000);
+        
+        setRetryCount(attemptNumber + 1);
+        
+        Toast.show({
+          type: 'info',
+          text1: t('retrying', user?.language),
+          text2: tv('retryAttempt', user?.language, {
+            seconds: delaySeconds,
+            plural: delaySeconds > 1 ? 's' : '',
+            current: attemptNumber + 2,
+            total: MAX_RETRY_ATTEMPTS + 1,
+          }),
+          visibilityTime: delayMs,
+        });
+
+        // Wait and retry with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        return analyzeBird(attemptNumber + 1);
+      }
+
+      // Max retries reached or non-retryable error - show error and go back
       let errorMessage = t('genericError', user.language);
 
       if (error.message?.includes('Insufficient credits')) {
         errorMessage = t('insufficientCredits', user.language);
       } else if (error.message?.includes('timeout')) {
-        errorMessage = 'Request timeout. Please try again with a smaller image.';
+        errorMessage = attemptNumber > 0 
+          ? 'Request timeout after multiple attempts. Try with a smaller image.'
+          : 'Request timeout. Please try again with a smaller image.';
       } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
-        errorMessage = t('networkError', user.language);
+        errorMessage = attemptNumber > 0
+          ? t('networkError', user.language) + ' Could not connect after retrying.'
+          : t('networkError', user.language);
       } else if (error.message?.includes('rate limit')) {
         errorMessage = 'Too many requests. Please wait a moment and try again.';
       } else if (error.message) {
@@ -95,12 +138,13 @@ export const AnalysisScreen: React.FC = () => {
         type: 'error',
         text1: t('error', user.language),
         text2: errorMessage,
+        visibilityTime: 4000,
       });
 
       // Wait a bit before navigating back so user can see the error
       setTimeout(() => {
         navigation.goBack();
-      }, 2000);
+      }, 3000);
     }
   };
 
@@ -123,6 +167,13 @@ export const AnalysisScreen: React.FC = () => {
         <Text style={[styles.loadingSubtext, { color: colors.textSecondary }]}>
           {t('pleaseWait', user?.language)}
         </Text>
+
+        {/* Retry Count Indicator */}
+        {retryCount > 0 && (
+          <Text style={[styles.retryText, { color: colors.warning }]}>
+            ⚠️ Retrying... (Attempt {retryCount + 1}/{MAX_RETRY_ATTEMPTS + 1})
+          </Text>
+        )}
 
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
@@ -177,6 +228,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 32,
+  },
+  retryText: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '600',
+    marginBottom: 16,
+    paddingHorizontal: 20,
   },
   progressContainer: {
     marginTop: 16,

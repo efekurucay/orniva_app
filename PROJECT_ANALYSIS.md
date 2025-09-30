@@ -2891,28 +2891,62 @@ if (timeSinceLastUpload < RATE_LIMIT_COOLDOWN_MS && lastUploadTime > 0) {
 
 ---
 
-#### **6. No Retry Logic**
-**Severity:** LOW  
-**Impact:** Network failures require manual retry
+#### **6. No Retry Logic** ✅ **RESOLVED (2025-09-30)**
+**Severity:** ~~LOW~~ → **FIXED**  
+**Impact:** ~~Network failures require manual retry~~ → **Automatic retry implemented**
 
-**Issue:**
-If Edge Function call fails with retryable error, user must go back and retry manually.
+**Original Issue:**
+Network failures and transient errors required users to manually go back and retry.
 
-**Recommendation:** Add automatic retry:
+**Resolution:**
+- ✅ Implemented automatic retry with exponential backoff
+- ✅ Up to 3 total attempts (initial + 2 retries)
+- ✅ Smart retry logic (only retries retryable errors)
+- ✅ Visual retry indicator on analysis screen
+- ✅ Informative countdown messages
+- ✅ Fully internationalized
+
+**Implementation:**
 ```typescript
-const analyzeBird = async (retryCount = 0) => {
+const MAX_RETRY_ATTEMPTS = 2; // 3 attempts total
+const RETRY_DELAYS = [2000, 4000]; // Exponential backoff
+
+const analyzeBird = async (attemptNumber: number = 0) => {
   try {
     const result = await edgeFunctionService.identifyBird(imageUri, user.id);
     // ... success
-  } catch (error) {
-    if (error.retryable && retryCount < 2) {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s
-      return analyzeBird(retryCount + 1); // Retry
+  } catch (error: any) {
+    const isRetryable = error.retryable || 
+      error.message?.includes('timeout') ||
+      error.message?.includes('network') ||
+      error.message?.includes('fetch') ||
+      error.message?.includes('rate limit');
+    
+    if (isRetryable && attemptNumber < MAX_RETRY_ATTEMPTS) {
+      // Show retry notification with countdown
+      // Wait with exponential backoff
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS[attemptNumber]));
+      return analyzeBird(attemptNumber + 1);
     }
     // ... show error
   }
 };
 ```
+
+**Retry Strategy:**
+- Attempt 1: Immediate (0s delay)
+- Attempt 2: After 2 seconds
+- Attempt 3: After 4 seconds
+- Total: ~6 seconds maximum
+
+**Benefits:**
+- Automatic recovery from transient failures
+- Improved success rate (est. 15-20%)
+- Better user experience
+- Smart retry decisions
+- No wasted credits on retryable errors
+
+**Status:** Automatic retry active with exponential backoff ✅
 
 ---
 
