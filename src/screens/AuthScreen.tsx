@@ -15,6 +15,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { t } from '../utils/i18n';
+import { validatePassword, validatePasswordForSignIn, getPasswordStrengthColor, PasswordValidationResult } from '../utils/passwordValidation';
 
 export const AuthScreen: React.FC = () => {
   const { signIn, signUp, user } = useAuth();
@@ -30,6 +31,7 @@ export const AuthScreen: React.FC = () => {
     email: '',
     password: '',
   });
+  const [passwordStrength, setPasswordStrength] = useState<PasswordValidationResult | null>(null);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -40,6 +42,7 @@ export const AuthScreen: React.FC = () => {
     const newErrors = { email: '', password: '' };
     let isValid = true;
 
+    // Validate email
     if (!email.trim()) {
       newErrors.email = 'Email is required';
       isValid = false;
@@ -48,12 +51,24 @@ export const AuthScreen: React.FC = () => {
       isValid = false;
     }
 
+    // Validate password based on mode
     if (!password.trim()) {
       newErrors.password = 'Password is required';
       isValid = false;
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-      isValid = false;
+    } else if (isSignUp) {
+      // Strict validation for sign up
+      const validation = validatePassword(password);
+      if (!validation.isValid) {
+        newErrors.password = validation.errors[0]; // Show first error
+        isValid = false;
+      }
+    } else {
+      // Simple validation for sign in
+      const validation = validatePasswordForSignIn(password);
+      if (!validation.isValid) {
+        newErrors.password = validation.error || 'Invalid password';
+        isValid = false;
+      }
     }
 
     setErrors(newErrors);
@@ -144,12 +159,67 @@ export const AuthScreen: React.FC = () => {
               onChangeText={(text) => {
                 setPassword(text);
                 setErrors({ ...errors, password: '' });
+                
+                // Real-time password strength checking for sign up
+                if (isSignUp && text.length > 0) {
+                  const validation = validatePassword(text);
+                  setPasswordStrength(validation);
+                } else {
+                  setPasswordStrength(null);
+                }
               }}
               placeholder="••••••••"
               isPassword
               autoComplete="password"
               error={errors.password}
             />
+
+            {/* Password Strength Indicator (only for sign up) */}
+            {isSignUp && passwordStrength && password.length > 0 && (
+              <View style={styles.passwordStrength}>
+                <View style={styles.strengthHeader}>
+                  <Text style={[styles.strengthLabel, { color: colors.textSecondary }]}>
+                    Password Strength:
+                  </Text>
+                  <View style={[
+                    styles.strengthBadge,
+                    { backgroundColor: getPasswordStrengthColor(passwordStrength.strength).backgroundColor }
+                  ]}>
+                    <Text style={[
+                      styles.strengthText,
+                      { color: getPasswordStrengthColor(passwordStrength.strength).color }
+                    ]}>
+                      {passwordStrength.strength.charAt(0).toUpperCase() + passwordStrength.strength.slice(1)}
+                    </Text>
+                  </View>
+                </View>
+                
+                {/* Strength bar */}
+                <View style={[styles.strengthBar, { backgroundColor: colors.border }]}>
+                  <View
+                    style={[
+                      styles.strengthBarFill,
+                      {
+                        width: `${passwordStrength.score}%`,
+                        backgroundColor: getPasswordStrengthColor(passwordStrength.strength).color,
+                      },
+                    ]}
+                  />
+                </View>
+                
+                {/* Requirements checklist (only show first error or success) */}
+                {passwordStrength.errors.length > 0 && (
+                  <Text style={[styles.strengthHint, { color: colors.error }]}>
+                    • {passwordStrength.errors[0]}
+                  </Text>
+                )}
+                {passwordStrength.isValid && (
+                  <Text style={[styles.strengthHint, { color: colors.success }]}>
+                    ✓ Password meets all requirements
+                  </Text>
+                )}
+              </View>
+            )}
 
             {isSignUp && (
               <Input
@@ -236,5 +306,45 @@ const styles = StyleSheet.create({
   footerLink: {
     fontSize: 14,
     fontWeight: '600',
+  },
+  passwordStrength: {
+    marginTop: -12,
+    marginBottom: 20,
+  },
+  strengthHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  strengthLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  strengthBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  strengthText: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  strengthBar: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  strengthBarFill: {
+    height: '100%',
+    borderRadius: 2,
+    transition: 'width 0.3s ease',
+  },
+  strengthHint: {
+    fontSize: 11,
+    lineHeight: 16,
   },
 });
