@@ -18,7 +18,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '../components/Button';
 import { t, tv } from '../utils/i18n';
-import { uriToBase64DataUri, validateImageSize } from '../utils/imageUtils';
+import { uriToBase64DataUri, validateImageSize, optimizeImage } from '../utils/imageUtils';
 import { RootStackParamList } from '../types';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -72,8 +72,8 @@ export const HomeScreen: React.FC = () => {
       if (!result.canceled && result.assets[0]) {
         const imageUri = result.assets[0].uri;
         
-        // Validate image size before processing
-        const validation = validateImageSize(imageUri, 5); // 5MB max
+        // Validate original image size (increased to 10MB since we'll optimize)
+        const validation = validateImageSize(imageUri, 10);
         if (!validation.isValid) {
           Toast.show({
             type: 'error',
@@ -83,8 +83,21 @@ export const HomeScreen: React.FC = () => {
           return;
         }
         
-        // Convert local file to base64 data URI using modern File API
-        const dataUri = await uriToBase64DataUri(imageUri);
+        // Show optimization progress
+        Toast.show({
+          type: 'info',
+          text1: 'Optimizing Image',
+          text2: 'Preparing your image for analysis...',
+          visibilityTime: 2000,
+        });
+        
+        // ✨ NEW: Optimize image before conversion
+        const optimizedImage = await optimizeImage(imageUri);
+        
+        console.log(`Optimization saved ${Math.round((1 - optimizedImage.optimizedSize / optimizedImage.originalSize) * 100)}% bandwidth`);
+        
+        // Convert optimized image to base64 data URI
+        const dataUri = await uriToBase64DataUri(optimizedImage.uri);
         navigation.navigate('Analysis', { imageUri: dataUri });
       }
     } catch (error) {
@@ -115,8 +128,8 @@ export const HomeScreen: React.FC = () => {
       if (!result.canceled && result.assets[0]) {
         const imageUri = result.assets[0].uri;
         
-        // Validate image size before processing
-        const validation = validateImageSize(imageUri, 5); // 5MB max
+        // Validate original image size (increased to 10MB since we'll optimize)
+        const validation = validateImageSize(imageUri, 10);
         if (!validation.isValid) {
           Toast.show({
             type: 'error',
@@ -126,8 +139,21 @@ export const HomeScreen: React.FC = () => {
           return;
         }
         
-        // Convert local file to base64 data URI using modern File API
-        const dataUri = await uriToBase64DataUri(imageUri);
+        // Show optimization progress
+        Toast.show({
+          type: 'info',
+          text1: 'Optimizing Image',
+          text2: 'Preparing your image for analysis...',
+          visibilityTime: 2000,
+        });
+        
+        // ✨ NEW: Optimize image before conversion
+        const optimizedImage = await optimizeImage(imageUri);
+        
+        console.log(`Optimization saved ${Math.round((1 - optimizedImage.optimizedSize / optimizedImage.originalSize) * 100)}% bandwidth`);
+        
+        // Convert optimized image to base64 data URI
+        const dataUri = await uriToBase64DataUri(optimizedImage.uri);
         navigation.navigate('Analysis', { imageUri: dataUri });
       }
     } catch (error) {
