@@ -7,6 +7,7 @@ import {
   Alert,
   Modal,
   Pressable,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
@@ -17,6 +18,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../theme/ThemeProvider';
 import { Button } from '../components/Button';
+import { GradientButton } from '../components/GradientButton';
+import { GradientText } from '../components/GradientText';
 import { t, tv } from '../utils/i18n';
 import { uriToBase64DataUri, validateImageSize, optimizeImage } from '../utils/imageUtils';
 import { RootStackParamList } from '../types';
@@ -206,7 +209,9 @@ export const HomeScreen: React.FC = () => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={[styles.logo, { color: colors.primary }]}>🦩</Text>
-          <Text style={[styles.appName, { color: colors.text }]}>Orniva</Text>
+          <GradientText variant="neon" style={styles.appName}>
+            Orniva
+          </GradientText>
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity
@@ -224,49 +229,101 @@ export const HomeScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Credit Display */}
-      <TouchableOpacity
-        style={[styles.creditCard, { backgroundColor: colors.surface }]}
-        onPress={() => navigation.navigate('Purchase')}
-        activeOpacity={0.8}
+      {/* Scrollable Content */}
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        <LinearGradient
-          colors={[colors.primary, colors.secondary]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.creditGradient}
+        {/* Credit Display with Glow */}
+        <TouchableOpacity
+          style={styles.creditCardContainer}
+          onPress={() => navigation.navigate('Purchase')}
+          activeOpacity={0.8}
         >
-          <Text style={styles.creditLabel}>{t('credits', user?.language)}</Text>
-          <View style={styles.creditRow}>
-            <Text style={styles.creditValue}>{user?.credits || 0}</Text>
-            <Text style={styles.addCreditsHint}>+</Text>
-          </View>
-        </LinearGradient>
-      </TouchableOpacity>
+          <LinearGradient
+            colors={[colors.primary, colors.secondary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.creditGradient, { 
+              shadowColor: colors.primary,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.5,
+              shadowRadius: 12,
+              elevation: 8,
+            }]}
+          >
+            <Text style={styles.creditLabel}>{t('credits', user?.language)}</Text>
+            <View style={styles.creditRow}>
+              <Text style={styles.creditValue}>{user?.credits || 0}</Text>
+              <Text style={styles.addCreditsHint}>+</Text>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
 
-      {/* Main Content */}
-      <View style={styles.content}>
-        <Text style={[styles.quote, { color: colors.textSecondary }]}>
-          {t('inspirationalQuote', user?.language)}
-        </Text>
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <LinearGradient
+            colors={[colors.primary, colors.secondary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.heroGradientWrapper}
+          >
+            <Text style={styles.heroTitle}>
+              Discover Birds
+            </Text>
+          </LinearGradient>
+          <Text style={[styles.heroSubtitle, { color: colors.secondary }]}>
+            with AI 🦅
+          </Text>
+          <Text style={[styles.heroDescription, { color: colors.textSecondary }]}>
+            {t('inspirationalQuote', user?.language)}
+          </Text>
+        </View>
 
+        {/* Upload Section - MAIN ACTION */}
         <View style={styles.uploadContainer}>
-          <View style={[styles.uploadIcon, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.uploadTitle, { color: colors.text }]}>📸 Start Identifying</Text>
+          
+          <LinearGradient
+            colors={[colors.surface, colors.cardBackground]}
+            style={[styles.uploadIcon, {
+              shadowColor: colors.primary,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.3,
+              shadowRadius: 20,
+              elevation: 5,
+            }]}
+          >
             <Text style={{ fontSize: 80 }}>📸</Text>
-          </View>
+          </LinearGradient>
 
-          <Button
-            title={t('uploadPhoto', user?.language)}
+          <TouchableOpacity
             onPress={handleUploadPress}
-            variant="primary"
-            style={styles.uploadButton}
-          />
+            activeOpacity={0.8}
+            style={styles.uploadButtonWrapper}
+          >
+            <LinearGradient
+              colors={[colors.primary, colors.secondary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[styles.uploadButton, {
+                shadowColor: colors.primary,
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.4,
+                shadowRadius: 12,
+                elevation: 8,
+              }]}
+            >
+              <Text style={styles.uploadButtonText}>📷 {t('uploadPhoto', user?.language)}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
 
           <Text style={[styles.helpText, { color: colors.textSecondary }]}>
             Upload a clear photo of a bird to identify its species
           </Text>
         </View>
-      </View>
+      </ScrollView>
 
       {/* Image Picker Modal */}
       <Modal
@@ -353,20 +410,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  creditCard: {
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  creditCardContainer: {
     marginHorizontal: 20,
+    marginTop: 8,
     marginBottom: 24,
-    borderRadius: 16,
-    overflow: 'hidden',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
   },
   creditGradient: {
     padding: 24,
     alignItems: 'center',
+    borderRadius: 16,
   },
   creditLabel: {
     fontSize: 14,
@@ -393,10 +451,34 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     opacity: 0.7,
   },
-  content: {
-    flex: 1,
+  heroSection: {
+    alignItems: 'center',
+    marginBottom: 40,
     paddingHorizontal: 20,
-    justifyContent: 'center',
+  },
+  heroGradientWrapper: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  heroTitle: {
+    fontSize: 48,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: '#FFFFFF',
+  },
+  heroSubtitle: {
+    fontSize: 56,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  heroDescription: {
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 24,
+    opacity: 0.8,
   },
   quote: {
     fontSize: 18,
@@ -407,18 +489,38 @@ const styles = StyleSheet.create({
   },
   uploadContainer: {
     alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 40,
+  },
+  uploadTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 24,
+    textAlign: 'center',
   },
   uploadIcon: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
   },
-  uploadButton: {
+  uploadButtonWrapper: {
     width: '100%',
     marginBottom: 16,
+  },
+  uploadButton: {
+    paddingVertical: 18,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  uploadButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   helpText: {
     fontSize: 14,

@@ -21,13 +21,16 @@ import { supabase } from '../config/supabase';
 import { BirdAnalysis, RootStackParamList } from '../types';
 import { ImageViewer } from '../components/ImageViewer';
 import { BirdDetailModal } from '../components/BirdDetailModal';
+import { GradientText } from '../components/GradientText';
+import { ConfidenceBadge } from '../components/ConfidenceBadge';
+import { GradientButton } from '../components/GradientButton';
 
 type HistoryScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'History'>;
 
 export const HistoryScreen: React.FC = () => {
   const navigation = useNavigation<HistoryScreenNavigationProp>();
   const { user } = useAuth();
-  const { colors } = useTheme();
+  const { theme, colors } = useTheme();
 
   const [analyses, setAnalyses] = useState<BirdAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,9 +139,21 @@ export const HistoryScreen: React.FC = () => {
   };
 
   const renderAnalysisItem = ({ item }: { item: BirdAnalysis }) => (
-    <View style={[styles.analysisCard, { backgroundColor: colors.surface }]}>
+    <LinearGradient
+      colors={[colors.surface, colors.surfaceVariant]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={[
+        styles.analysisCard,
+        {
+          ...theme.shadows.md,
+          shadowColor: colors.primary,
+          shadowOpacity: 0.15,
+        },
+      ]}
+    >
       <View style={styles.cardContent}>
-        {/* Image - Tap to view full-screen */}
+        {/* Image - Tap to view full-screen - Now 1:1 aspect ratio */}
         {item.image_url ? (
           <TouchableOpacity
             onPress={() => handleImagePress(item.image_url!)}
@@ -158,8 +173,8 @@ export const HistoryScreen: React.FC = () => {
                   <ActivityIndicator size="small" color="#FFFFFF" />
                 </View>
               )}
-              {/* Zoom indicator */}
-              <View style={styles.zoomIndicator}>
+              {/* Zoom indicator with glow */}
+              <View style={[styles.zoomIndicator, { ...theme.glowEffects.purple }]}>
                 <Text style={styles.zoomIcon}>🔍</Text>
               </View>
             </View>
@@ -176,16 +191,16 @@ export const HistoryScreen: React.FC = () => {
           onPress={() => handleCardPress(item)}
           activeOpacity={0.7}
         >
-          <Text style={[styles.speciesName, { color: colors.text }]} numberOfLines={1}>
+          <GradientText variant="primary" style={styles.speciesName} numberOfLines={1}>
             {item.bird_species}
-          </Text>
+          </GradientText>
           
           <View style={styles.metaRow}>
-            <View style={[styles.confidenceBadge, { backgroundColor: colors.primary + '20' }]}>
-              <Text style={[styles.confidenceText, { color: colors.primary }]}>
-                {Math.round(item.confidence)}% {t('confidence', user?.language)}
-              </Text>
-            </View>
+            <ConfidenceBadge 
+              confidence={Math.round(item.confidence)} 
+              size="small"
+              variant="gradient"
+            />
           </View>
 
           {item.description && (
@@ -202,26 +217,26 @@ export const HistoryScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </LinearGradient>
   );
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyIcon}>🔍</Text>
-      <Text style={[styles.emptyTitle, { color: colors.text }]}>
+      <GradientText variant="accent" style={styles.emptyTitle}>
         {t('noHistoryYet', user?.language)}
-      </Text>
+      </GradientText>
       <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
         {t('startIdentifying', user?.language)}
       </Text>
-      <TouchableOpacity
-        style={[styles.emptyButton, { backgroundColor: colors.primary }]}
+      <GradientButton
+        title={t('identifyBird', user?.language)}
         onPress={() => navigation.navigate('Home')}
-      >
-        <Text style={styles.emptyButtonText}>
-          {t('identifyBird', user?.language)}
-        </Text>
-      </TouchableOpacity>
+        variant="primary"
+        size="large"
+        glowIntensity="normal"
+        icon={<Text style={{ fontSize: 20 }}>📷</Text>}
+      />
     </View>
   );
 
@@ -235,18 +250,20 @@ export const HistoryScreen: React.FC = () => {
         >
           <Text style={{ fontSize: 24 }}>←</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
+        <GradientText variant="primary" style={styles.headerTitle}>
           {t('history', user?.language)}
-        </Text>
+        </GradientText>
         <View style={{ width: 48 }} />
       </View>
 
-      {/* Stats Card */}
+      {/* Stats Card with Glow */}
       <LinearGradient
         colors={[colors.primary, colors.secondary]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.statsCard}
+        style={[styles.statsCard, {
+          ...theme.glowEffects.purple,
+        }]}
       >
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{analyses.length}</Text>
@@ -368,11 +385,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   cardContent: {
     flexDirection: 'row',
@@ -382,8 +394,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   birdImage: {
-    width: 100,
-    height: 100,
+    width: 88,    // 1:1 aspect ratio (slightly smaller for better fit)
+    height: 88,   // Square image
     borderRadius: 12,
     marginRight: 12,
   },
