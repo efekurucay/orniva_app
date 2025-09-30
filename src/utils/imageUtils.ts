@@ -74,3 +74,58 @@ export function getFileSize(imageUri: string): string {
     return 'Unknown size';
   }
 }
+
+/**
+ * Gets file size in megabytes
+ */
+export function getFileSizeInMB(imageUri: string): number {
+  try {
+    const file = new File(imageUri);
+    return file.size / (1024 * 1024);
+  } catch (error) {
+    return 0;
+  }
+}
+
+/**
+ * Validates image size against a maximum limit
+ * 
+ * @param imageUri - Local file URI
+ * @param maxSizeMB - Maximum allowed size in megabytes (default: 5MB)
+ * @returns Object with validation result and error message if invalid
+ */
+export function validateImageSize(
+  imageUri: string,
+  maxSizeMB: number = 5
+): { isValid: boolean; sizeInMB: number; errorMessage?: string } {
+  try {
+    const sizeInMB = getFileSizeInMB(imageUri);
+    
+    if (sizeInMB === 0) {
+      return {
+        isValid: false,
+        sizeInMB: 0,
+        errorMessage: 'Unable to determine file size',
+      };
+    }
+    
+    if (sizeInMB > maxSizeMB) {
+      return {
+        isValid: false,
+        sizeInMB,
+        errorMessage: `Image is too large (${sizeInMB.toFixed(2)} MB). Please select an image under ${maxSizeMB} MB.`,
+      };
+    }
+    
+    return {
+      isValid: true,
+      sizeInMB,
+    };
+  } catch (error) {
+    return {
+      isValid: false,
+      sizeInMB: 0,
+      errorMessage: 'Failed to validate image size',
+    };
+  }
+}

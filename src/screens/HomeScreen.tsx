@@ -18,7 +18,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { Button } from '../components/Button';
 import { t } from '../utils/i18n';
-import { uriToBase64DataUri } from '../utils/imageUtils';
+import { uriToBase64DataUri, validateImageSize } from '../utils/imageUtils';
 import { RootStackParamList } from '../types';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -65,8 +65,21 @@ export const HomeScreen: React.FC = () => {
       });
 
       if (!result.canceled && result.assets[0]) {
+        const imageUri = result.assets[0].uri;
+        
+        // Validate image size before processing
+        const validation = validateImageSize(imageUri, 5); // 5MB max
+        if (!validation.isValid) {
+          Toast.show({
+            type: 'error',
+            text1: 'Image Too Large',
+            text2: validation.errorMessage || 'Please select a smaller image.',
+          });
+          return;
+        }
+        
         // Convert local file to base64 data URI using modern File API
-        const dataUri = await uriToBase64DataUri(result.assets[0].uri);
+        const dataUri = await uriToBase64DataUri(imageUri);
         navigation.navigate('Analysis', { imageUri: dataUri });
       }
     } catch (error) {
@@ -95,8 +108,21 @@ export const HomeScreen: React.FC = () => {
       });
 
       if (!result.canceled && result.assets[0]) {
+        const imageUri = result.assets[0].uri;
+        
+        // Validate image size before processing
+        const validation = validateImageSize(imageUri, 5); // 5MB max
+        if (!validation.isValid) {
+          Toast.show({
+            type: 'error',
+            text1: 'Image Too Large',
+            text2: validation.errorMessage || 'Please select a smaller image.',
+          });
+          return;
+        }
+        
         // Convert local file to base64 data URI using modern File API
-        const dataUri = await uriToBase64DataUri(result.assets[0].uri);
+        const dataUri = await uriToBase64DataUri(imageUri);
         navigation.navigate('Analysis', { imageUri: dataUri });
       }
     } catch (error) {

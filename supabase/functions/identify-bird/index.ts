@@ -135,7 +135,7 @@ serve(async (req) => {
     // Initialize Gemini AI
     const genAI = new GoogleGenerativeAI(geminiApiKey);
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash" // Fast and cost-effective for image analysis
+      model: "gemini-2.5-pro" // More accurate and powerful model for image analysis
     });
 
     // Prepare the prompt for bird identification
@@ -220,7 +220,7 @@ DESCRIPTION: Unable to identify a bird in this image. Please upload a clear phot
         success: true,
         result: parsedResult,
         timestamp: new Date().toISOString(),
-        model_used: 'gemini-2.5-pro'
+        model_used: 'gemini-2.5-pro' // Using more powerful model for better accuracy
       }),
       { 
         status: 200,
