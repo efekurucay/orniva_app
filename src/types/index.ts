@@ -45,34 +45,34 @@ export interface ThemeContextType {
 }
 
 export const lightColors = {
-  primary: '#4A90E2',
-  secondary: '#50C878',
-  background: '#FFFFFF',
-  surface: '#F5F7FA',
-  text: '#2C3E50',
-  textSecondary: '#7F8C8D',
-  error: '#E74C3C',
-  success: '#2ECC71',
-  warning: '#F39C12',
-  border: '#E0E6ED',
+  primary: '#7C3AED',        // Deep purple
+  secondary: '#A78BFA',      // Soft lavender
+  background: '#FAFAFA',     // Very light gray
+  surface: '#F5F3FF',        // Purple tinted surface
+  text: '#1F2937',           // Dark gray
+  textSecondary: '#6B7280',  // Medium gray
+  error: '#EF4444',          // Soft red
+  success: '#10B981',        // Soft green
+  warning: '#F59E0B',        // Soft amber
+  border: '#E9D5FF',         // Light purple border
   shadow: '#000000',
   cardBackground: '#FFFFFF',
   buttonText: '#FFFFFF',
 };
 
 export const darkColors = {
-  primary: '#4A90E2',
-  secondary: '#50C878',
-  background: '#121212',
-  surface: '#1E1E1E',
-  text: '#FFFFFF',
-  textSecondary: '#B0B0B0',
-  error: '#EF5350',
-  success: '#66BB6A',
-  warning: '#FFA726',
-  border: '#2C2C2C',
+  primary: '#8B5CF6',        // Bright purple for dark mode
+  secondary: '#A78BFA',      // Soft lavender
+  background: '#0F172A',     // Deep navy blue-gray
+  surface: '#1E1B2E',        // Dark purple-gray
+  text: '#F9FAFB',           // Off white
+  textSecondary: '#9CA3AF',  // Light gray
+  error: '#F87171',          // Bright red
+  success: '#34D399',        // Bright green
+  warning: '#FBBF24',        // Bright amber
+  border: '#312E81',         // Dark purple border
   shadow: '#000000',
-  cardBackground: '#1E1E1E',
+  cardBackground: '#1E1B2E',
   buttonText: '#FFFFFF',
 };
 
@@ -86,4 +86,5 @@ export type RootStackParamList = {
   };
   Settings: undefined;
   Purchase: undefined;
+  History: undefined;
 };

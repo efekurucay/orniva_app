@@ -81,6 +81,15 @@ export const translations = {
     amount: 'Amount',
     mockPaymentWarning: 'Mock payment (Development mode)',
     
+    // History
+    history: 'History',
+    identifications: 'Identifications',
+    uniqueSpecies: 'Unique Species',
+    noHistoryYet: 'No History Yet',
+    startIdentifying: 'Start identifying birds to see your history here',
+    identifyBird: 'Identify a Bird',
+    confidence: 'confidence',
+    
     // Success
     success: 'Success',
     signInSuccess: 'Signed in successfully!',
@@ -167,6 +176,15 @@ export const translations = {
     date: 'Tarih',
     amount: 'Tutar',
     mockPaymentWarning: 'Deneme ödemesi (Geliştirme modu)',
+    
+    // History
+    history: 'Geçmiş',
+    identifications: 'Tanımlamalar',
+    uniqueSpecies: 'Benzersiz Türler',
+    noHistoryYet: 'Henüz Geçmiş Yok',
+    startIdentifying: 'Geçmişinizi görmek için kuşları tanımlamaya başlayın',
+    identifyBird: 'Kuş Tanımla',
+    confidence: 'güven',
     
     // Success
     success: 'Başarılı',

@@ -179,15 +179,23 @@ export const HomeScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={[styles.logo, { color: colors.primary }]}>🦜</Text>
+          <Text style={[styles.logo, { color: colors.primary }]}>🦩</Text>
           <Text style={[styles.appName, { color: colors.text }]}>Orniva</Text>
         </View>
-        <TouchableOpacity
-          style={[styles.settingsButton, { backgroundColor: colors.surface }]}
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <Text style={{ fontSize: 24 }}>⚙️</Text>
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity
+            style={[styles.headerButton, { backgroundColor: colors.surface }]}
+            onPress={() => navigation.navigate('History')}
+          >
+            <Text style={{ fontSize: 24 }}>📜</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.headerButton, { backgroundColor: colors.surface }]}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <Text style={{ fontSize: 24 }}>⚙️</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Credit Display */}
@@ -308,7 +316,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
   },
-  settingsButton: {
+  headerRight: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  headerButton: {
     width: 48,
     height: 48,
     borderRadius: 24,
