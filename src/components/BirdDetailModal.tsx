@@ -13,7 +13,7 @@ import {
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BirdAnalysis } from '../types';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../theme/ThemeProvider';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

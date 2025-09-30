@@ -8,7 +8,7 @@ import {
   TextInputProps,
   TouchableOpacity,
 } from 'react-native';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../theme/ThemeProvider';
 
 interface InputProps extends TextInputProps {
   label?: string;

@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
-import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './src/theme/ThemeProvider';
 import { RootStackParamList } from './src/types';
 
 // Screens

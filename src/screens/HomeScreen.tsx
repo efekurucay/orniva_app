@@ -15,7 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../theme/ThemeProvider';
 import { Button } from '../components/Button';
 import { t, tv } from '../utils/i18n';
 import { uriToBase64DataUri, validateImageSize, optimizeImage } from '../utils/imageUtils';

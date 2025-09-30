@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../theme/ThemeProvider';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { t } from '../utils/i18n';
