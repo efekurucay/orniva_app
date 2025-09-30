@@ -85,4 +85,5 @@ export type RootStackParamList = {
     result: BirdRecognitionResult;
   };
   Settings: undefined;
+  Purchase: undefined;
 };

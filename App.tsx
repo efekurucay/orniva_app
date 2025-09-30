@@ -13,6 +13,7 @@ import { HomeScreen } from './src/screens/HomeScreen';
 import { AnalysisScreen } from './src/screens/AnalysisScreen';
 import { ResultsScreen } from './src/screens/ResultsScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
+import { PurchaseScreen } from './src/screens/PurchaseScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -53,6 +54,11 @@ const AppNavigator = () => {
                 name="Settings"
                 component={SettingsScreen}
                 options={{ animation: 'slide_from_right' }}
+              />
+              <Stack.Screen
+                name="Purchase"
+                component={PurchaseScreen}
+                options={{ animation: 'slide_from_bottom' }}
               />
             </>
           )}

@@ -10,14 +10,17 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { t } from '../utils/i18n';
-import { Language } from '../types';
+import { Language, RootStackParamList } from '../types';
+
+type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
 export const SettingsScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<SettingsScreenNavigationProp>();
   const { user, signOut, updateProfile } = useAuth();
   const { colors, isDark, toggleTheme } = useTheme();
   const [loading, setLoading] = useState(false);
@@ -118,6 +121,16 @@ export const SettingsScreen: React.FC = () => {
               {user?.credits || 0}
             </Text>
           </View>
+
+          <TouchableOpacity
+            style={[styles.purchaseButton, { backgroundColor: colors.primary }]}
+            onPress={() => navigation.navigate('Purchase')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.purchaseButtonText}>
+              💳 {t('buyCredits', user?.language)}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Appearance Section */}
@@ -289,6 +302,18 @@ const styles = StyleSheet.create({
   creditsValue: {
     fontSize: 24,
     fontWeight: '700',
+  },
+  purchaseButton: {
+    marginTop: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  purchaseButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
   settingItem: {
     flexDirection: 'row',

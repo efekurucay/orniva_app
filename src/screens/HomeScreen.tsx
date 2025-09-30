@@ -191,7 +191,11 @@ export const HomeScreen: React.FC = () => {
       </View>
 
       {/* Credit Display */}
-      <View style={[styles.creditCard, { backgroundColor: colors.surface }]}>
+      <TouchableOpacity
+        style={[styles.creditCard, { backgroundColor: colors.surface }]}
+        onPress={() => navigation.navigate('Purchase')}
+        activeOpacity={0.8}
+      >
         <LinearGradient
           colors={[colors.primary, colors.secondary]}
           start={{ x: 0, y: 0 }}
@@ -199,9 +203,12 @@ export const HomeScreen: React.FC = () => {
           style={styles.creditGradient}
         >
           <Text style={styles.creditLabel}>{t('credits', user?.language)}</Text>
-          <Text style={styles.creditValue}>{user?.credits || 0}</Text>
+          <View style={styles.creditRow}>
+            <Text style={styles.creditValue}>{user?.credits || 0}</Text>
+            <Text style={styles.addCreditsHint}>+</Text>
+          </View>
         </LinearGradient>
-      </View>
+      </TouchableOpacity>
 
       {/* Main Content */}
       <View style={styles.content}>
@@ -332,10 +339,21 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
+  creditRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
   creditValue: {
     fontSize: 48,
     color: '#FFFFFF',
     fontWeight: '700',
+  },
+  addCreditsHint: {
+    fontSize: 32,
+    color: '#FFFFFF',
+    fontWeight: '300',
+    opacity: 0.7,
   },
   content: {
     flex: 1,
