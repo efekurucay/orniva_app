@@ -14,6 +14,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../theme/ThemeProvider';
+import { Icon } from '../components/Icon';
+import { AppIcons } from '../constants/icons';
 import { t } from '../utils/i18n';
 import { Language, RootStackParamList } from '../types';
 
@@ -141,12 +143,13 @@ export const SettingsScreen: React.FC = () => {
     );
   };
 
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={{ fontSize: 24 }}>←</Text>
+          <Icon name={AppIcons.back} size="md" color="text" />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
           {t('settings', user?.language)}
@@ -191,9 +194,12 @@ export const SettingsScreen: React.FC = () => {
             onPress={() => navigation.navigate('Purchase')}
             activeOpacity={0.8}
           >
-            <Text style={styles.purchaseButtonText}>
-              💳 {t('buyCredits', user?.language)}
-            </Text>
+            <View style={styles.purchaseButtonContent}>
+              <Icon name={AppIcons.wallet} size="sm" color="white" />
+              <Text style={styles.purchaseButtonText}>
+                {t('buyCredits', user?.language)}
+              </Text>
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -207,7 +213,11 @@ export const SettingsScreen: React.FC = () => {
             activeOpacity={0.7}
           >
             <View style={styles.settingLeft}>
-              <Text style={{ fontSize: 24, marginRight: 12 }}>🌙</Text>
+              <Icon 
+                name={isDark ? AppIcons.theme : AppIcons.themeSun} 
+                size="md" 
+                color="primary" 
+              />
               <Text style={[styles.settingText, { color: colors.text }]}>
                 {t('darkMode', user?.language)}
               </Text>
@@ -235,10 +245,10 @@ export const SettingsScreen: React.FC = () => {
             onPress={() => handleLanguageChange('en')}
             disabled={loading}
           >
-            <Text style={{ fontSize: 24, marginRight: 12 }}>🇬🇧</Text>
+            <Icon name={AppIcons.language} size="md" color={user?.language === 'en' ? 'primary' : 'textSecondary'} />
             <Text style={[styles.settingText, { color: colors.text }]}>English</Text>
             {user?.language === 'en' && (
-              <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
+              <Icon name={AppIcons.checkmark} size="sm" color="primary" />
             )}
           </TouchableOpacity>
 
@@ -250,10 +260,10 @@ export const SettingsScreen: React.FC = () => {
             onPress={() => handleLanguageChange('tr')}
             disabled={loading}
           >
-            <Text style={{ fontSize: 24, marginRight: 12 }}>🇹🇷</Text>
+            <Icon name={AppIcons.language} size="md" color={user?.language === 'tr' ? 'primary' : 'textSecondary'} />
             <Text style={[styles.settingText, { color: colors.text }]}>Türkçe</Text>
             {user?.language === 'tr' && (
-              <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
+              <Icon name={AppIcons.checkmark} size="sm" color="primary" />
             )}
           </TouchableOpacity>
         </View>
@@ -267,7 +277,7 @@ export const SettingsScreen: React.FC = () => {
             onPress={handleLogout}
             activeOpacity={0.7}
           >
-            <Text style={{ fontSize: 24, marginRight: 12 }}>🚪</Text>
+            <Icon name={AppIcons.logout} size="md" color="textSecondary" />
             <Text style={[styles.logoutText, { color: colors.text }]}>
               {t('logout', user?.language)}
             </Text>
@@ -280,7 +290,7 @@ export const SettingsScreen: React.FC = () => {
             activeOpacity={0.7}
             disabled={isDeleting}
           >
-            <Text style={{ fontSize: 24, marginRight: 12 }}>⚠️</Text>
+            <Icon name={AppIcons.deleteAccount} size="md" color="error" />
             <Text style={[styles.deleteAccountText, { color: colors.error }]}>
               {t('deleteAccount', user?.language)}
             </Text>
@@ -389,6 +399,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
   },
+  purchaseButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   purchaseButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
@@ -404,6 +419,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    gap: 12,
   },
   settingText: {
     fontSize: 16,
@@ -416,6 +432,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 12,
     marginBottom: 8,
+    gap: 12,
   },
   checkmark: {
     marginLeft: 'auto',
@@ -427,6 +444,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     marginBottom: 12,
+    gap: 12,
   },
   logoutText: {
     fontSize: 16,
@@ -440,6 +458,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     marginTop: 4,
+    gap: 12,
   },
   deleteAccountText: {
     fontSize: 16,

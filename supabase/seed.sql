@@ -35,4 +35,4 @@ VALUES (
 */
 
 -- For production, seed data is not needed
--- Users will sign up through the app and get their initial 10 credits automatically
+-- Users will sign up through the app and get their initial 3 free credits automatically

@@ -13,6 +13,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Toast from 'react-native-toast-message';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../theme/ThemeProvider';
+import { Icon } from '../components/Icon';
+import { AppIcons } from '../constants/icons';
 import { edgeFunctionService } from '../services/edgeFunctionService';
 import { t, tv } from '../utils/i18n';
 import { RootStackParamList } from '../types';
@@ -158,7 +160,7 @@ export const AnalysisScreen: React.FC = () => {
 
         {/* Loading Animation */}
         <Animated.View style={[styles.loadingContainer, { transform: [{ scale: pulseAnim }] }]}>
-          <Text style={styles.loadingIcon}>🔍</Text>
+          <Icon name={AppIcons.scan} size="xxl" color="primary" />
         </Animated.View>
 
         <Text style={[styles.loadingText, { color: colors.text }]}>
@@ -213,9 +215,6 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     marginBottom: 24,
-  },
-  loadingIcon: {
-    fontSize: 64,
   },
   loadingText: {
     fontSize: 24,

@@ -14,6 +14,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../theme/ThemeProvider';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
+import { Icon } from '../components/Icon';
+import { BirdIcon } from '../components/BirdIcon';
+import { AppIcons } from '../constants/icons';
 import { t } from '../utils/i18n';
 import { validatePassword, validatePasswordForSignIn, getPasswordStrengthColor, PasswordValidationResult } from '../utils/passwordValidation';
 
@@ -128,7 +131,7 @@ export const AuthScreen: React.FC = () => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={[styles.logo, { color: colors.primary }]}>🦜</Text>
+            <BirdIcon size="xxl" style={styles.logo} />
             <Text style={[styles.title, { color: colors.text }]}>
               {t('welcome', user?.language)}
             </Text>
@@ -273,7 +276,6 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   logo: {
-    fontSize: 72,
     marginBottom: 16,
   },
   title: {

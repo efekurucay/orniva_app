@@ -20,6 +20,9 @@ import { useTheme } from '../theme/ThemeProvider';
 import { Button } from '../components/Button';
 import { GradientButton } from '../components/GradientButton';
 import { GradientText } from '../components/GradientText';
+import { Icon } from '../components/Icon';
+import { BirdIcon } from '../components/BirdIcon';
+import { AppIcons } from '../constants/icons';
 import { t, tv } from '../utils/i18n';
 import { uriToBase64DataUri, validateImageSize, optimizeImage } from '../utils/imageUtils';
 import { RootStackParamList } from '../types';
@@ -208,7 +211,7 @@ export const HomeScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={[styles.logo, { color: colors.primary }]}>🦩</Text>
+          <BirdIcon size="xl" />
           <GradientText variant="neon" style={styles.appName}>
             Orniva
           </GradientText>
@@ -218,13 +221,13 @@ export const HomeScreen: React.FC = () => {
             style={[styles.headerButton, { backgroundColor: colors.surface }]}
             onPress={() => navigation.navigate('History')}
           >
-            <Text style={{ fontSize: 24 }}>📜</Text>
+            <Icon name={AppIcons.history} size="md" color="text" />
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.headerButton, { backgroundColor: colors.surface }]}
             onPress={() => navigation.navigate('Settings')}
           >
-            <Text style={{ fontSize: 24 }}>⚙️</Text>
+            <Icon name={AppIcons.settings} size="md" color="text" />
           </TouchableOpacity>
         </View>
       </View>
@@ -283,7 +286,10 @@ export const HomeScreen: React.FC = () => {
 
         {/* Upload Section - MAIN ACTION */}
         <View style={styles.uploadContainer}>
-          <Text style={[styles.uploadTitle, { color: colors.text }]}>📸 Start Identifying</Text>
+          <View style={styles.uploadTitleRow}>
+            <Icon name={AppIcons.camera} size="md" color="text" />
+            <Text style={[styles.uploadTitle, { color: colors.text }]}>Start Identifying</Text>
+          </View>
           
           <LinearGradient
             colors={[colors.surface, colors.cardBackground]}
@@ -295,7 +301,7 @@ export const HomeScreen: React.FC = () => {
               elevation: 5,
             }]}
           >
-            <Text style={{ fontSize: 60 }}>📸</Text>
+            <Icon name={AppIcons.camera} size="xxl" color="primary" />
           </LinearGradient>
 
           <TouchableOpacity
@@ -311,11 +317,14 @@ export const HomeScreen: React.FC = () => {
                 shadowColor: colors.primary,
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.4,
-                shadowRadius: 12,
+              shadowRadius: 12,
                 elevation: 8,
               }]}
             >
-              <Text style={styles.uploadButtonText}>📷 {t('uploadPhoto', user?.language)}</Text>
+              <View style={styles.uploadButtonContent}>
+                <Icon name={AppIcons.image} size="md" color="white" />
+                <Text style={styles.uploadButtonText}>{t('uploadPhoto', user?.language)}</Text>
+              </View>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -347,7 +356,7 @@ export const HomeScreen: React.FC = () => {
               style={[styles.modalOption, { borderBottomColor: colors.border }]}
               onPress={handleTakePhoto}
             >
-              <Text style={{ fontSize: 32, marginRight: 16 }}>📷</Text>
+              <Icon name={AppIcons.camera} size="xl" color="primary" style={{ marginRight: 16 }} />
               <Text style={[styles.modalOptionText, { color: colors.text }]}>
                 {t('takePhoto', user?.language)}
               </Text>
@@ -357,7 +366,7 @@ export const HomeScreen: React.FC = () => {
               style={styles.modalOption}
               onPress={handleChooseFromGallery}
             >
-              <Text style={{ fontSize: 32, marginRight: 16 }}>🖼️</Text>
+              <Icon name={AppIcons.image} size="xl" color="primary" style={{ marginRight: 16 }} />
               <Text style={[styles.modalOptionText, { color: colors.text }]}>
                 {t('chooseFromGallery', user?.language)}
               </Text>
@@ -391,9 +400,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-  },
-  logo: {
-    fontSize: 32,
   },
   appName: {
     fontSize: 24,
@@ -493,10 +499,15 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 32,
   },
+  uploadTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 20,
+  },
   uploadTitle: {
     fontSize: 18,
     fontWeight: '700',
-    marginBottom: 20,
     textAlign: 'center',
   },
   uploadIcon: {
@@ -515,6 +526,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
+  },
+  uploadButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   uploadButtonText: {
     color: '#FFFFFF',

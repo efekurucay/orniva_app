@@ -12,12 +12,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../theme/ThemeProvider';
+import { Icon } from '../components/Icon';
+import { BirdIcon } from '../components/BirdIcon';
+import { AppIcons } from '../constants/icons';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface OnboardingSlide {
   id: string;
-  emoji: string;
+  icon: keyof typeof AppIcons;
   title: string;
   titleTr: string;
   description: string;
@@ -27,7 +30,7 @@ interface OnboardingSlide {
 const slides: OnboardingSlide[] = [
   {
     id: '1',
-    emoji: '🦜',
+    icon: 'bird',
     title: 'Welcome to Orniva',
     titleTr: 'Orniva\'ya Hoş Geldiniz',
     description: 'Identify any bird species instantly using the power of AI. Discover the fascinating world of birds around you!',
@@ -35,7 +38,7 @@ const slides: OnboardingSlide[] = [
   },
   {
     id: '2',
-    emoji: '📸',
+    icon: 'camera',
     title: 'Snap a Photo',
     titleTr: 'Fotoğraf Çek',
     description: 'Simply take a clear photo of any bird. Our AI will analyze it and identify the species with high accuracy.',
@@ -43,7 +46,7 @@ const slides: OnboardingSlide[] = [
   },
   {
     id: '3',
-    emoji: '💎',
+    icon: 'wallet',
     title: 'Credits System',
     titleTr: 'Kredi Sistemi',
     description: 'Each identification uses 1 credit. Purchase credit packages anytime to keep exploring and learning!',
@@ -51,7 +54,7 @@ const slides: OnboardingSlide[] = [
   },
   {
     id: '4',
-    emoji: '🌟',
+    icon: 'sparkles',
     title: 'Start Your Journey',
     titleTr: 'Yolculuğunuza Başlayın',
     description: 'You\'ll receive 3 free credits to get started. Ready to discover the birds in your backyard?',
@@ -104,7 +107,11 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
       <View style={styles.slideContent}>
         <View style={[styles.emojiContainer, { backgroundColor: colors.surface }]}>
-          <Text style={styles.emoji}>{item.emoji}</Text>
+          {item.icon === 'bird' ? (
+            <BirdIcon size="xxl" />
+          ) : (
+            <Icon name={AppIcons[item.icon]} size="xxl" color="primary" />
+          )}
         </View>
         
         <Text style={[styles.title, { color: colors.text }]}>
@@ -222,9 +229,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
-  },
-  emoji: {
-    fontSize: 80,
   },
   title: {
     fontSize: 28,

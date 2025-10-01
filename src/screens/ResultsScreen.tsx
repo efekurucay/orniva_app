@@ -14,6 +14,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../theme/ThemeProvider';
 import { Button } from '../components/Button';
+import { Icon } from '../components/Icon';
+import { AppIcons } from '../constants/icons';
 import { t } from '../utils/i18n';
 import { RootStackParamList } from '../types';
 
@@ -62,7 +64,7 @@ export const ResultsScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Success Icon */}
         <Animated.View style={[styles.successIcon, { opacity: fadeAnim }]}>
-          <Text style={styles.successEmoji}>✅</Text>
+          <Icon name={AppIcons.checkmarkCircle} size="xxl" color="success" />
         </Animated.View>
 
         {/* Image */}
@@ -159,9 +161,6 @@ const styles = StyleSheet.create({
   successIcon: {
     alignSelf: 'center',
     marginBottom: 16,
-  },
-  successEmoji: {
-    fontSize: 64,
   },
   imageContainer: {
     width: '100%',

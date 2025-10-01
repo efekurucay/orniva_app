@@ -16,6 +16,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../theme/ThemeProvider';
+import { Icon } from '../components/Icon';
+import { BirdIcon } from '../components/BirdIcon';
+import { AppIcons } from '../constants/icons';
 import { t } from '../utils/i18n';
 import { supabase } from '../config/supabase';
 import { BirdAnalysis, RootStackParamList } from '../types';
@@ -175,13 +178,13 @@ export const HistoryScreen: React.FC = () => {
               )}
               {/* Zoom indicator with glow */}
               <View style={[styles.zoomIndicator, { ...theme.glowEffects.purple }]}>
-                <Text style={styles.zoomIcon}>🔍</Text>
+                <Icon name={AppIcons.expand} size="xs" color="white" />
               </View>
             </View>
           </TouchableOpacity>
         ) : (
           <View style={[styles.birdImage, styles.placeholderImage, { backgroundColor: colors.border }]}>
-            <Text style={styles.placeholderIcon}>🦅</Text>
+            <BirdIcon size="xl" />
           </View>
         )}
         
@@ -222,7 +225,7 @@ export const HistoryScreen: React.FC = () => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyIcon}>🔍</Text>
+      <Icon name={AppIcons.search} size="xxl" color="textSecondary" style={styles.emptyIcon} />
       <GradientText variant="accent" style={styles.emptyTitle}>
         {t('noHistoryYet', user?.language)}
       </GradientText>
@@ -235,7 +238,7 @@ export const HistoryScreen: React.FC = () => {
         variant="primary"
         size="large"
         glowIntensity="normal"
-        icon={<Text style={{ fontSize: 20 }}>📷</Text>}
+        icon={<Icon name={AppIcons.camera} size="md" color="white" />}
       />
     </View>
   );
@@ -417,16 +420,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  zoomIcon: {
-    fontSize: 12,
-  },
   placeholderImage: {
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  placeholderIcon: {
-    fontSize: 40,
-    opacity: 0.3,
   },
   infoContainer: {
     flex: 1,
@@ -472,7 +468,6 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   emptyIcon: {
-    fontSize: 80,
     marginBottom: 20,
   },
   emptyTitle: {
