@@ -15,6 +15,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../theme/ThemeProvider';
 import { Icon } from '../components/Icon';
 import { AppIcons } from '../constants/icons';
+import { BirdFlightGame } from '../components/BirdFlightGame';
 import { edgeFunctionService } from '../services/edgeFunctionService';
 import { t, tv } from '../utils/i18n';
 import { RootStackParamList } from '../types';
@@ -158,6 +159,12 @@ export const AnalysisScreen: React.FC = () => {
           <Image source={{ uri: imageUri }} style={styles.image} />
         </View>
 
+        {/* Orniva Flappy Bird Game */}
+        <BirdFlightGame onScoreChange={(score) => {
+          // Optional: Track high scores
+          console.log('Current score:', score);
+        }} />
+
         {/* Loading Animation */}
         <Animated.View style={[styles.loadingContainer, { transform: [{ scale: pulseAnim }] }]}>
           <Icon name={AppIcons.scan} size="xxl" color="primary" />
@@ -167,7 +174,7 @@ export const AnalysisScreen: React.FC = () => {
           {t('analyzing', user?.language)}
         </Text>
         <Text style={[styles.loadingSubtext, { color: colors.textSecondary }]}>
-          {t('pleaseWait', user?.language)}
+          {t('pleaseWait', user?.language)} 🕒
         </Text>
 
         {/* Retry Count Indicator */}
