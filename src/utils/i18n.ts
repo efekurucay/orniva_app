@@ -96,6 +96,16 @@ export const translations = {
     signUpSuccess: 'Account created successfully!',
     signOutSuccess: 'Signed out successfully!',
     profileUpdated: 'Profile updated successfully!',
+    
+    // Account Deletion
+    deleteAccount: 'Delete Account',
+    deleteAccountWarning: 'Delete Your Account?',
+    deleteAccountMessage: 'This action is PERMANENT and IRREVERSIBLE. All your data will be deleted including:\n\n• Your profile and settings\n• All bird identifications\n• Purchase history\n• Uploaded photos\n\nAre you absolutely sure?',
+    deleteAccountConfirm: 'Yes, Delete My Account',
+    deleteAccountCancel: 'Cancel',
+    deleteAccountSuccess: 'Your account has been permanently deleted.',
+    deleteAccountError: 'Failed to delete account. Please try again.',
+    deleteAccountProcessing: 'Deleting your account...',
   },
   tr: {
     // Auth Screen
@@ -192,6 +202,16 @@ export const translations = {
     signUpSuccess: 'Hesap başarıyla oluşturuldu!',
     signOutSuccess: 'Başarıyla çıkış yapıldı!',
     profileUpdated: 'Profil başarıyla güncellendi!',
+    
+    // Account Deletion
+    deleteAccount: 'Hesabı Sil',
+    deleteAccountWarning: 'Hesabınızı Silmek İstiyor musunuz?',
+    deleteAccountMessage: 'Bu işlem KALICI ve GERİ ALINAMAZ. Tüm verileriniz silinecek:\n\n• Profiliniz ve ayarlarınız\n• Tüm kuş tanımlamaları\n• Satın alma geçmişi\n• Yüklenen fotoğraflar\n\nTamamen emin misiniz?',
+    deleteAccountConfirm: 'Evet, Hesabımı Sil',
+    deleteAccountCancel: 'İptal',
+    deleteAccountSuccess: 'Hesabınız kalıcı olarak silindi.',
+    deleteAccountError: 'Hesap silinemedi. Lütfen tekrar deneyin.',
+    deleteAccountProcessing: 'Hesabınız siliniyor...',
   },
 };
 

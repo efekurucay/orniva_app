@@ -95,4 +95,38 @@ export const authService = {
     return session;
   },
 
+  /**
+   * Delete user account
+   * 
+   * This will permanently delete:
+   * - User's authentication record
+   * - User profile
+   * - All bird analyses
+   * - All purchase history
+   * - All uploaded bird images from Storage
+   * 
+   * This action is IRREVERSIBLE!
+   * 
+   * @param userId - The ID of the user to delete
+   * @throws Error if deletion fails
+   */
+  async deleteAccount(userId: string): Promise<void> {
+    // Call the delete-account Edge Function
+    const { data, error } = await supabase.functions.invoke('delete-account', {
+      body: { user_id: userId },
+    });
+
+    if (error) {
+      console.error('Error calling delete-account function:', error);
+      throw new Error(error.message || 'Failed to delete account');
+    }
+
+    if (!data || !data.success) {
+      const errorMessage = data?.error || 'Failed to delete account';
+      throw new Error(errorMessage);
+    }
+
+    console.log('Account deleted successfully:', data);
+  },
+
 };

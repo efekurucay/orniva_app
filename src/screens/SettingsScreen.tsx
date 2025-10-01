@@ -24,6 +24,7 @@ export const SettingsScreen: React.FC = () => {
   const { user, signOut, updateProfile } = useAuth();
   const { colors, isDark, toggleTheme } = useTheme();
   const [loading, setLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleLanguageChange = async (newLanguage: Language) => {
     if (!user || user.language === newLanguage) return;
@@ -45,6 +46,69 @@ export const SettingsScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteAccount = () => {
+    if (!user) return;
+
+    Alert.alert(
+      t('deleteAccountWarning', user.language),
+      t('deleteAccountMessage', user.language),
+      [
+        {
+          text: t('deleteAccountCancel', user.language),
+          style: 'cancel',
+        },
+        {
+          text: t('deleteAccountConfirm', user.language),
+          style: 'destructive',
+          onPress: async () => {
+            setIsDeleting(true);
+            Toast.show({
+              type: 'info',
+              text1: t('deleteAccountProcessing', user.language),
+              visibilityTime: 0, // Stay until dismissed
+            });
+
+            try {
+              // Import authService
+              const { authService } = await import('../services/authService');
+              
+              // Delete the account
+              await authService.deleteAccount(user.id);
+
+              // Hide processing toast
+              Toast.hide();
+
+              // Show success message
+              Toast.show({
+                type: 'success',
+                text1: t('success', user.language),
+                text2: t('deleteAccountSuccess', user.language),
+                visibilityTime: 3000,
+              });
+
+              // Sign out (this will redirect to auth screen)
+              setTimeout(async () => {
+                await signOut();
+              }, 1000);
+            } catch (error: any) {
+              console.error('Delete account error:', error);
+              Toast.hide();
+              Toast.show({
+                type: 'error',
+                text1: t('error', user.language),
+                text2: error.message || t('deleteAccountError', user.language),
+                visibilityTime: 4000,
+              });
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const handleLogout = () => {
@@ -196,14 +260,29 @@ export const SettingsScreen: React.FC = () => {
 
         {/* Account Section */}
         <View style={[styles.section, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Account</Text>
+          
           <TouchableOpacity
             style={styles.logoutButton}
             onPress={handleLogout}
             activeOpacity={0.7}
           >
             <Text style={{ fontSize: 24, marginRight: 12 }}>🚪</Text>
-            <Text style={[styles.logoutText, { color: colors.error }]}>
+            <Text style={[styles.logoutText, { color: colors.text }]}>
               {t('logout', user?.language)}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Delete Account Button */}
+          <TouchableOpacity
+            style={[styles.deleteAccountButton, { borderColor: colors.error }]}
+            onPress={handleDeleteAccount}
+            activeOpacity={0.7}
+            disabled={isDeleting}
+          >
+            <Text style={{ fontSize: 24, marginRight: 12 }}>⚠️</Text>
+            <Text style={[styles.deleteAccountText, { color: colors.error }]}>
+              {t('deleteAccount', user?.language)}
             </Text>
           </TouchableOpacity>
         </View>
@@ -347,10 +426,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
+    marginBottom: 12,
   },
   logoutText: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  deleteAccountButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    marginTop: 4,
+  },
+  deleteAccountText: {
+    fontSize: 16,
+    fontWeight: '700',
   },
   version: {
     fontSize: 12,
